@@ -153,4 +153,23 @@ Your task is to create a comprehensive Bruno collection that validates the entir
 4.  **Send the GitHub link** to your instructor via Discord.
 
 ---
+
+## 🐛 Bug Summary (Test Results)
+
+Here are the bugs we found in the API using our Bruno tests:
+
+1. **Wrong Price (`POST /orders`)**
+   - **Bug:** When we order Tom Yum Noodles (which costs 50), the API calculates the total price as 45 instead of 50.
+   - **How we found it:** The `POST Orders` test checks if the price is exactly 50. The test fails because the API returns 45.
+
+2. **Ordering More Than What's In Stock (`POST /orders`)**
+   - **Bug:** The API lets us order items even if there are none left. It should stop us and give an error.
+   - **How we found it:** The test `POST Orders - Over Stock` tries to buy more than what is available. The test expects an error, but the API says everything is OK (status 200), so the test fails.
+
+3. **Fake Orders Show as Success (`GET /orders/<orderId>`)**
+   - **Bug:** If we search for an order that does not exist, the API still says "200 OK" (success) instead of "404 Not Found" (error).
+   - **How we found it:** The test `GET Order - Not Found` looks for a made-up order ID. The test expects an error status code, but since the API gives a success code instead, the test fails.
+
+---
 *Good luck. Auntie Som is counting on you!* 🍜🔥
+
