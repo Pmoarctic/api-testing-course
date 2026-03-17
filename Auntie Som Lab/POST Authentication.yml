@@ -1,0 +1,39 @@
+info:
+  name: POST Authentication
+  type: http
+  seq: 1
+
+http:
+  method: POST
+  url: "{{baseUrl}}/auth/login"
+  body:
+    type: json
+    data: |-
+      {
+        "username": "student",
+        "password": "hungry"
+      }
+  auth: inherit
+
+runtime:
+  scripts:
+    - type: after-response
+      code: |-
+        if(res.getStatus() !== 200) {
+          throw new Error(`Expected 200 from POST /auth/login, got ${res.getStatus()}`);
+        }
+
+        const data = res.getBody();
+        if (!data.accessToken) throw new Error("accessToken missing");
+
+        bru.setEnvVar("token", data.accessToken);
+  assertions:
+    - expression: res.status
+      operator: eq
+      value: "200"
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

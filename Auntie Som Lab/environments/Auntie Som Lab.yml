@@ -1,0 +1,8 @@
+name: Auntie Som Lab
+variables:
+  - name: baseUrl
+    value: http://localhost:5000
+  - secret: true
+    name: token
+  - name: orderId
+    value: ""

@@ -1,0 +1,35 @@
+info:
+  name: GET Order - Not Found
+  type: http
+  seq: 9
+
+http:
+  method: GET
+  url: "{{baseUrl}}/orders/ORD-doesnotexist"
+  auth: inherit
+
+runtime:
+  scripts:
+    - type: after-response
+      code: |-
+        // Correct maybe behavior should be 404.
+        // Current API returns 200
+        if (res.getStatus() === 200) {
+          const data = res.getBody();
+          if (data.orderId) {
+            throw new Error(`Expected no orderId in response when order not found, got ${data.orderId}`);
+          }
+        }
+        if(res.body.error !== "Order not found") {
+          throw new Error(`Expected 200 from GET /orders/{orderId} even when not found, got ${res.getStatus()}`);
+        }
+  assertions:
+    - expression: res.status
+      operator: neq
+      value: "200"
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

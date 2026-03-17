@@ -1,0 +1,45 @@
+info:
+  name: GET Menu
+  type: http
+  seq: 4
+
+http:
+  method: GET
+  url: "{{baseUrl}}/menu"
+  auth: inherit
+
+runtime:
+  scripts:
+    - type: after-response
+      code: |-
+
+        if (res.getStatus() !== 200) {
+          throw new Error(`Expected 200 from GET /menu, got ${res.getStatus()}`);
+        }
+        const menu = res.getBody();
+
+        const item2 = menu.find(x => x.id === 2);
+        if (!item2) throw new Error("Expected menu to contain item id=2");
+
+        bru.setEnvVar("item2Price", item2.price);
+        bru.setEnvVar("item2Stock", item2.stock);
+  assertions:
+    - expression: res.status
+      operator: eq
+      value: "200"
+    - expression: res.body
+      operator: isArray
+    - expression: res.body[0].id
+      operator: isNumber
+    - expression: res.body[0].name
+      operator: isString
+    - expression: res.body[0].price
+      operator: isNumber
+    - expression: res.body[0].stock
+      operator: isNumber
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

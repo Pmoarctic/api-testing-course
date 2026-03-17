@@ -1,0 +1,36 @@
+info:
+  name: POST Authentication - Invalid Username
+  type: http
+  seq: 2
+
+http:
+  method: POST
+  url: "{{baseUrl}}/auth/login"
+  body:
+    type: json
+    data: |-
+      {
+        "username": "dawdwadwa",
+        "password": "hungry"
+      }
+  auth: inherit
+
+runtime:
+  scripts:
+    - type: after-response
+      code: |-
+        if(res.getStatus() !== 401) {
+          throw new Error(`Expected 401 from POST /auth/login with invalid username, got ${res.getStatus()}`);
+        }
+        const data = res.getBody();
+        if(data.error != "Invalid login") throw new Error("Username must be invalid");
+  assertions:
+    - expression: res.status
+      operator: eq
+      value: "401"
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

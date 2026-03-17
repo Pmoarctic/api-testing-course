@@ -1,0 +1,49 @@
+info:
+  name: POST Orders - Over Stock
+  type: http
+  seq: 8
+
+http:
+  method: POST
+  url: "{{baseUrl}}/orders"
+  body:
+    type: json
+    data: |-
+      {
+        "itemId": 2,
+        "quantity": 2
+      }
+  auth:
+    type: bearer
+    token: "{{token}}"
+
+runtime:
+  scripts:
+    - type: after-response
+      code: |-
+        if (res.getStatus() === 200) {
+          throw new Error(`Expected status not 200 when Over Stock, got ${res.getStatus()}`);
+        }
+
+        // {
+        //   "itemId": 2,
+        //   "quantity": 2
+        // }
+        // expected totalPrice = 90
+
+        if (res.body.totalPrice !== 90){
+          throw new Error(`Expected totalPrice is equal to 90`);
+        }
+  assertions:
+    - expression: res.status
+      operator: neq
+      value: "200"
+    - expression: res.body.totalPrice
+      operator: eq
+      value: "90"
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

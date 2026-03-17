@@ -1,0 +1,36 @@
+info:
+  name: POST Orders - Invalid Item
+  type: http
+  seq: 6
+
+http:
+  method: POST
+  url: "{{baseUrl}}/orders"
+  body:
+    type: json
+    data: |-
+      {
+        "itemId": 9999,
+        "quantity": 1
+      }
+  auth:
+    type: bearer
+    token: "{{token}}"
+
+runtime:
+  scripts:
+    - type: after-response
+      code: |-
+        if (res.getStatus() !== 404) {
+          throw new Error(`Expected 404 for unknown itemId, got ${res.getStatus()}`);
+        }
+  assertions:
+    - expression: res.status
+      operator: eq
+      value: "404"
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
