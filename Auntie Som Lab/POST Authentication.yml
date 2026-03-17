@@ -19,10 +19,6 @@ runtime:
   scripts:
     - type: after-response
       code: |-
-        if(res.getStatus() !== 200) {
-          throw new Error(`Expected 200 from POST /auth/login, got ${res.getStatus()}`);
-        }
-
         const data = res.getBody();
         if (!data.accessToken) throw new Error("accessToken missing");
 
@@ -31,6 +27,8 @@ runtime:
     - expression: res.status
       operator: eq
       value: "200"
+    - expression: res.body.accessToken
+      operator: isString
 
 settings:
   encodeUrl: true
